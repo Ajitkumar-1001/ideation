@@ -1,0 +1,46 @@
+# Workflow config for Rote. Shaped to live in the `ideation` repo under workflows/.
+[workflow]
+name = "rote-demo"
+description = "Planner/executor/critic loop with procedural memory and a cost-aware router."
+max_replans = 2
+
+[budget]
+run_usd = 0.050      # hard cap for the whole run
+episode_usd = 0.010  # hard cap per task
+
+[pricing]            # nominal $/1M tokens used for cost accounting (mock provider bills nothing real)
+input_per_mtok = 3.0
+output_per_mtok = 15.0
+
+[memory]
+skip_critic_confidence = 0.75  # Beta-posterior skill confidence at which the critic is skipped
+
+[policy]
+ucb_c = 0.3
+cost_weight = 0.5        # reward = success - cost_weight * (episode_cost / reference_cost_usd)
+reference_cost_usd = 0.004
+
+[[tasks]]
+text = "convert 10 mi to km then add 3"
+[[tasks]]
+text = "population of france divided by 1000"
+[[tasks]]
+text = "convert 5 kg to lb then add 2"
+[[tasks]]
+text = "convert 100 ft to m then add 10"
+[[tasks]]
+text = "population of japan divided by 1000000"
+[[tasks]]
+text = "convert 70 kg to lb then add 5"
+[[tasks]]
+text = "convert 3 km to mi then add 7"
+[[tasks]]
+text = "area of canada divided by 1000"
+[[tasks]]
+text = "convert 5 kg to km then add 1"
+[[tasks]]
+text = "population of brazil divided by 1000"
+[[tasks]]
+text = "convert 8 mi to km then add 2"
+[[tasks]]
+text = "write me a haiku about rain"
