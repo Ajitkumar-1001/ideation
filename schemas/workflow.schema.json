@@ -1,0 +1,164 @@
+{
+  "$defs": {
+    "BudgetConfig": {
+      "properties": {
+        "run_usd": {
+          "exclusiveMinimum": 0,
+          "title": "Run Usd",
+          "type": "number"
+        },
+        "episode_usd": {
+          "exclusiveMinimum": 0,
+          "title": "Episode Usd",
+          "type": "number"
+        },
+        "max_output_tokens": {
+          "default": 256,
+          "exclusiveMinimum": 0,
+          "title": "Max Output Tokens",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "run_usd",
+        "episode_usd"
+      ],
+      "title": "BudgetConfig",
+      "type": "object"
+    },
+    "MemoryConfig": {
+      "properties": {
+        "skip_critic_confidence": {
+          "default": 0.75,
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "title": "Skip Critic Confidence",
+          "type": "number"
+        }
+      },
+      "title": "MemoryConfig",
+      "type": "object"
+    },
+    "PolicyConfig": {
+      "properties": {
+        "ucb_c": {
+          "default": 0.3,
+          "minimum": 0.0,
+          "title": "Ucb C",
+          "type": "number"
+        },
+        "cost_weight": {
+          "default": 0.5,
+          "minimum": 0.0,
+          "title": "Cost Weight",
+          "type": "number"
+        },
+        "reference_cost_usd": {
+          "default": 0.004,
+          "exclusiveMinimum": 0,
+          "title": "Reference Cost Usd",
+          "type": "number"
+        }
+      },
+      "title": "PolicyConfig",
+      "type": "object"
+    },
+    "PricingConfig": {
+      "properties": {
+        "input_per_mtok": {
+          "minimum": 0,
+          "title": "Input Per Mtok",
+          "type": "number"
+        },
+        "output_per_mtok": {
+          "minimum": 0,
+          "title": "Output Per Mtok",
+          "type": "number"
+        }
+      },
+      "required": [
+        "input_per_mtok",
+        "output_per_mtok"
+      ],
+      "title": "PricingConfig",
+      "type": "object"
+    },
+    "TaskSpec": {
+      "properties": {
+        "text": {
+          "title": "Text",
+          "type": "string"
+        }
+      },
+      "required": [
+        "text"
+      ],
+      "title": "TaskSpec",
+      "type": "object"
+    },
+    "WorkflowMeta": {
+      "properties": {
+        "name": {
+          "title": "Name",
+          "type": "string"
+        },
+        "description": {
+          "default": "",
+          "title": "Description",
+          "type": "string"
+        },
+        "max_replans": {
+          "default": 2,
+          "maximum": 5,
+          "minimum": 0,
+          "title": "Max Replans",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "name"
+      ],
+      "title": "WorkflowMeta",
+      "type": "object"
+    }
+  },
+  "properties": {
+    "workflow": {
+      "$ref": "#/$defs/WorkflowMeta"
+    },
+    "budget": {
+      "$ref": "#/$defs/BudgetConfig"
+    },
+    "pricing": {
+      "$ref": "#/$defs/PricingConfig"
+    },
+    "memory": {
+      "$ref": "#/$defs/MemoryConfig",
+      "default": {
+        "skip_critic_confidence": 0.75
+      }
+    },
+    "policy": {
+      "$ref": "#/$defs/PolicyConfig",
+      "default": {
+        "ucb_c": 0.3,
+        "cost_weight": 0.5,
+        "reference_cost_usd": 0.004
+      }
+    },
+    "tasks": {
+      "items": {
+        "$ref": "#/$defs/TaskSpec"
+      },
+      "title": "Tasks",
+      "type": "array"
+    }
+  },
+  "required": [
+    "workflow",
+    "budget",
+    "pricing"
+  ],
+  "title": "WorkflowConfig",
+  "type": "object"
+}

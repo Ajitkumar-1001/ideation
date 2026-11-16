@@ -1,0 +1,82 @@
+name: Validate workflow configs
+
+on:
+  pull_request:
+    paths:
+      - "workflows/**"
+      - "schemas/**"
+      - ".github/workflows/validate.yml"
+  push:
+    branches: [main]
+    paths:
+      - "workflows/**"
+      - "schemas/**"
+      - ".github/workflows/validate.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install jsonschema
+        run: python -m pip install --disable-pip-version-check "jsonschema>=4.18,<5"
+
+      - name: Validate workflow TOML configs
+        run: |
+          python - <<'PY'
+          import glob
+          import json
+          import sys
+          import tomllib
+          from jsonschema import Draft202012Validator
+          from jsonschema.exceptions import SchemaError
+
+          with open("schemas/workflow.schema.json", encoding="utf-8") as f:
+              schema = json.load(f)
+
+          try:
+              Draft202012Validator.check_schema(schema)
+          except SchemaError as e:
+              print(f"schema invalid: {e}")
+              sys.exit(1)
+
+          validator = Draft202012Validator(schema)
+          paths = sorted(glob.glob("workflows/*.toml"))
+          if not paths:
+              print("no workflows/*.toml files found")
+              sys.exit(1)
+
+          failed = False
+          for path in paths:
+              try:
+                  with open(path, "rb") as f:
+                      data = tomllib.load(f)
+              except tomllib.TOMLDecodeError as e:
+                  print(f"{path}: TOMLDecodeError: {e}")
+                  failed = True
+                  continue
+
+              errors = sorted(validator.iter_errors(data), key=lambda e: [str(p) for p in e.absolute_path])
+              if errors:
+                  failed = True
+                  for e in errors:
+                      loc = getattr(e, "json_path", None) or ("/" + "/".join(str(p) for p in e.absolute_path))
+                      print(f"{path}: {loc}: {e.message}")
+              else:
+                  print(f"ok: {path}")
+
+          if failed:
+              sys.exit(1)
+          PY
